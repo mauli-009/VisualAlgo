@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        body { display: flex; height: 100vh; margin: 0; font-family: Arial, sans-serif; }
+        #editor { width: 50%; height: 100vh; border-right: 2px solid #ccc; }
+        #visualization { width: 50%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #nodes-container, #graph-container { display: flex; align-items: center; gap: 10px; position: relative; }
+        .node { width: 50px; height: 50px; background: lightblue; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; position: relative; }
+        .arrow { width: 30px; height: 2px; background: black; position: relative; }
+        .edge { position: absolute; width: 50px; height: 2px; background: black; transform-origin: left; }
+        #controls { margin-top: 10px; }
+        button { margin: 5px; padding: 10px; cursor: pointer; border: none; background: #28a745; color: white; border-radius: 5px; font-size: 16px; }
+        button:hover { background: #218838; }
+        #graph-container { position: relative; width: 100%; height: 300px; }
+    </style>
+</head>
+<body>
+    <div id="editor"></div>
+    <div id="visualization">
+        <h2>Visualization</h2>
+        <div id="nodes-container"></div>
+        <div id="graph-container"></div>
+        <div id="controls">
+            <button onclick="prevStep()">Prev</button>
+            <button onclick="nextStep()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/c_cpp");
+        editor.setValue("#include <iostream>\nusing namespace std;\nclass Node {\npublic:\n    int data;\n    Node* next;\n    Node(int val) : data(val), next(nullptr) {}\n};\nint main() {\n    Node* head = new Node(1);\n    head->next = new Node(2);\n    head->next->next = new Node(3);\n    return 0;\n}");
+
+        let step = 0;
+        const linkedListSteps = [1, 2, 3, 4, 5];
+        const graphEdges = [[0,1],[1,2],[2,3],[3,4]];
+        const container = document.getElementById("nodes-container");
+        const graphContainer = document.getElementById("graph-container");
+        let graphNodes = [];
+
+        function createNode(value) {
+            let node = document.createElement("div");
+            node.classList.add("node");
+            node.innerText = value;
+            container.appendChild(node);
+            if (container.children.length > 1) {
+                let arrow = document.createElement("div");
+                arrow.classList.add("arrow");
+                container.appendChild(arrow);
+            }
+            anime({ targets: node, scale: [0, 1], duration: 500, easing: "easeOutBounce" });
+        }
+
+        function removeNode() {
+            if (container.lastChild) {
+                container.removeChild(container.lastChild);
+                if (container.lastChild && container.lastChild.classList.contains("arrow")) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+        }
+
+        function createGraph() {
+            graphContainer.innerHTML = "";
+            graphNodes = linkedListSteps.map((val, index) => {
+                let node = document.createElement("div");
+                node.classList.add("node");
+                node.innerText = val;
+                node.style.position = "absolute";
+                node.style.left = `${index * 80}px`;
+                node.style.top = "50px";
+                graphContainer.appendChild(node);
+                return node;
+            });
+
+            graphEdges.forEach(([start, end]) => {
+                let edge = document.createElement("div");
+                edge.classList.add("edge");
+                let x1 = parseInt(graphNodes[start].style.left) + 25;
+                let y1 = parseInt(graphNodes[start].style.top) + 25;
+                let x2 = parseInt(graphNodes[end].style.left) + 25;
+                let y2 = parseInt(graphNodes[end].style.top) + 25;
+                let length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                let angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+                edge.style.width = `${length}px`;
+                edge.style.transform = `rotate(${angle}deg)`;
+                edge.style.left = `${x1}px`;
+                edge.style.top = `${y1}px`;
+                graphContainer.appendChild(edge);
+            });
+        }
+
+        function nextStep() {
+            if (step < linkedListSteps.length) {
+                createNode(linkedListSteps[step]);
+                step++;
+                if (step === linkedListSteps.length) {
+                    createGraph();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (step > 0) {
+                step--;
+                removeNode();
+            }
+        }
+    </script>
+</body>
+</html>
