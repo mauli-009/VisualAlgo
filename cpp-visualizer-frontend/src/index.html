@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Visualizer</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="scripts/script.js" defer></script>
+</head>
+<body>
+    <div id="editor"></div>
+    <div id="visualization">
+        <h2>Visualization</h2>
+        <div id="output-container"></div>
+        <div id="controls">
+            <button onclick="prevStep()">Prev</button>
+            <button onclick="nextStep()">Next</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+    </div>
+</body>
+</html>
